@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Lucian">
+    
+    <title>
+        
+            性能分析 |
+        
+        Lucian&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"geeklucian.github.io","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar1.jpg","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"使用一些简单而不确定的规则，要比复杂而确定的规则更为实用。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Lucian&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                HOME
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                ARCHIVES
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">HOME</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">ARCHIVES</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">性能分析</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar1.jpg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Lucian</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-09-30 23:41:14
+    </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>参考 <a class="link"   target="_blank" rel="noopener" href="https://missing-semester-cn.github.io/2020/debugging-profiling/" >调试及性能分析<i class="fas fa-external-link-alt"></i></a> 和 <a class="link"   target="_blank" rel="noopener" href="https://perf.wiki.kernel.org/index.php/Tutorial" >Tutorial - Perf Wiki<i class="fas fa-external-link-alt"></i></a></p>
+<hr>
+<p>由Amdahl’s Law，为了尽可能提升程序运行速度，需要分析程序的bottleneck，即耗时最长的部分（深度学习应用中通常为访存相关操作），再进行优化。使用性能分析工具可以找到程序中最耗时、最耗资源的部分。</p>
+<p>直接使用time()会被误导，因为程序运行时，执行时间会包含其他进程造成的等待。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">time cmd</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><em>real</em> - 从程序开始到结束流失掉的真实时间，包括其他进程的执行时间以及阻塞消耗的时间（例如等待 I/O或网络）；</li>
+<li><em>User</em> - CPU 执行用户代码所花费的时间；</li>
+<li><em>Sys</em> - CPU 执行系统内核代码所花费的时间。</li>
+</ul>
+<h2 id="性能分析工具-profilers"><a href="#性能分析工具-profilers" class="headerlink" title="性能分析工具 (profilers)"></a>性能分析工具 (profilers)</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m cProfile xxx.py</span><br></pre></td></tr></table></figure>
+
+<h3 id="逐行时间分析"><a href="#逐行时间分析" class="headerlink" title="逐行时间分析"></a>逐行时间分析</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3-line-profiler</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment">#coding=utf8</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"></span><br><span class="line"><span class="comment"># 这个装饰器会告诉行分析器 </span></span><br><span class="line"><span class="comment"># 我们想要分析这个函数</span></span><br><span class="line"><span class="meta">@profile</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_urls</span>():</span></span><br><span class="line">    response = requests.get(<span class="string">&#x27;https://missing.csail.mit.edu&#x27;</span>)</span><br><span class="line">    s = BeautifulSoup(response.content, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">    urls = []</span><br><span class="line">    <span class="keyword">for</span> url <span class="keyword">in</span> s.find_all(<span class="string">&#x27;a&#x27;</span>):</span><br><span class="line">        urls.append(url[<span class="string">&#x27;href&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    get_urls()</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kernprof -l -v foo.py</span><br></pre></td></tr></table></figure>
+
+<h3 id="内存分析"><a href="#内存分析" class="headerlink" title="内存分析"></a>内存分析</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3-memory-profiler</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@profile</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_func</span>():</span></span><br><span class="line">    a = [<span class="number">1</span>] * (<span class="number">10</span> ** <span class="number">6</span>)</span><br><span class="line">    b = [<span class="number">2</span>] * (<span class="number">2</span> * <span class="number">10</span> ** <span class="number">7</span>)</span><br><span class="line">    <span class="keyword">del</span> b</span><br><span class="line">    <span class="keyword">return</span> a</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    my_func()</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ python3 -m memory_profiler bar.py       </span><br><span class="line">Filename: bar.py</span><br><span class="line"></span><br><span class="line">Line <span class="comment">#    Mem usage    Increment   Line Contents</span></span><br><span class="line">================================================</span><br><span class="line">     1   38.105 MiB   38.105 MiB   @profile</span><br><span class="line">     2                             def my_func():</span><br><span class="line">     3   45.770 MiB    7.664 MiB       a = [1] * (10 ** 6)</span><br><span class="line">     4  198.395 MiB  152.625 MiB       b = [2] * (2 * 10 ** 7)</span><br><span class="line">     5   45.848 MiB -152.547 MiB       del b</span><br><span class="line">     6   45.848 MiB    0.000 MiB       <span class="built_in">return</span> a</span><br></pre></td></tr></table></figure>
+
+<h3 id="事件分析"><a href="#事件分析" class="headerlink" title="事件分析"></a>事件分析</h3><p><code>perf</code> 可以报告不佳的缓存局部性（poor cache locality）、大量的页错误（page faults）或活锁（livelocks）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install linux-tools-5.11.0-34-generic</span><br><span class="line">perf list</span><br></pre></td></tr></table></figure>
+
+<h3 id="可视化"><a href="#可视化" class="headerlink" title="可视化"></a>可视化</h3><p> <a class="link"   target="_blank" rel="noopener" href="http://www.brendangregg.com/flamegraphs.html" >火焰图<i class="fas fa-external-link-alt"></i></a>，调用图<a target="_blank" rel="noopener" href="http://pycallgraph.slowchop.com/en/master/"><code>pycallgraph</code></a> ，htop是top的改进版，iotop查看IO信息</p>
+<p>df查看磁盘使用情况 du当前目录 -h友好显示</p>
+<p>free查看空闲内存，lsof查看被进程打开的文件，ss监控网络包的收发情况</p>
+<h3 id="Perf"><a href="#Perf" class="headerlink" title="Perf"></a>Perf</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">usage: perf [--version] [--<span class="built_in">help</span>] [OPTIONS] COMMAND [ARGS]</span><br><span class="line"></span><br><span class="line">The most commonly used perf commands are:</span><br><span class="line">  annotate        Read perf.data (created by perf record) and display annotated code</span><br><span class="line">  archive         Create archive with object files with build-ids found <span class="keyword">in</span> perf.data file</span><br><span class="line">  bench           General framework <span class="keyword">for</span> benchmark suites</span><br><span class="line">  buildid-cache   Manage build-id cache.</span><br><span class="line">  buildid-list    List the buildids <span class="keyword">in</span> a perf.data file</span><br><span class="line">  c2c             Shared Data C2C/HITM Analyzer.</span><br><span class="line">  config          Get and <span class="built_in">set</span> variables <span class="keyword">in</span> a configuration file.</span><br><span class="line">  data            Data file related processing</span><br><span class="line">  diff            Read perf.data files and display the differential profile</span><br><span class="line">  evlist          List the event names <span class="keyword">in</span> a perf.data file</span><br><span class="line">  ftrace          simple wrapper <span class="keyword">for</span> kernel<span class="string">&#x27;s ftrace functionality</span></span><br><span class="line"><span class="string">  inject          Filter to augment the events stream with additional information</span></span><br><span class="line"><span class="string">  kallsyms        Searches running kernel for symbols</span></span><br><span class="line"><span class="string">  kmem            Tool to trace/measure kernel memory properties</span></span><br><span class="line"><span class="string">  kvm             Tool to trace/measure kvm guest os</span></span><br><span class="line"><span class="string">  list            List all symbolic event types</span></span><br><span class="line"><span class="string">  lock            Analyze lock events</span></span><br><span class="line"><span class="string">  mem             Profile memory accesses</span></span><br><span class="line"><span class="string">  record          Run a command and record its profile into perf.data</span></span><br><span class="line"><span class="string">  report          Read perf.data (created by perf record) and display the profile</span></span><br><span class="line"><span class="string">  sched           Tool to trace/measure scheduler properties (latencies)</span></span><br><span class="line"><span class="string">  script          Read perf.data (created by perf record) and display trace output</span></span><br><span class="line"><span class="string">  stat            Run a command and gather performance counter statistics</span></span><br><span class="line"><span class="string">  test            Runs sanity tests.</span></span><br><span class="line"><span class="string">  timechart       Tool to visualize total system behavior during a workload</span></span><br><span class="line"><span class="string">  top             System profiling tool.</span></span><br><span class="line"><span class="string">  probe           Define new dynamic tracepoints</span></span><br><span class="line"><span class="string">  trace           strace inspired tool</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>事件</p>
+<ul>
+<li>软事件：内核计数，如context-switches、minor-faults</li>
+<li>PMU硬件事件：来自处理器本身及其性能监视单元PMU，如周期数、失效指令、L1Cache miss，由CPU供应商提供文档</li>
+<li>tracepoint事件：由内核ftrace基础实现</li>
+</ul>
+</li>
+<li><p><code>perf stat</code>收集常见事件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ perf <span class="built_in">stat</span> -B dd <span class="keyword">if</span>=/dev/zero of=/dev/null count=1000000</span><br><span class="line">1000000+0 records <span class="keyword">in</span></span><br><span class="line">1000000+0 records out</span><br><span class="line">512000000 bytes (512 MB, 488 MiB) copied, 0.460126 s, 1.1 GB/s</span><br><span class="line"></span><br><span class="line"> Performance counter stats <span class="keyword">for</span> <span class="string">&#x27;dd if=/dev/zero of=/dev/null count=1000000&#x27;</span>:</span><br><span class="line"></span><br><span class="line">        459.490970      task-clock (msec)         <span class="comment">#    0.992 CPUs utilized         </span></span><br><span class="line">                11      context-switches          <span class="comment">#    0.024 K/sec                 </span></span><br><span class="line">                 0      cpu-migrations            <span class="comment">#    0.000 K/sec                 </span></span><br><span class="line">                62      page-faults               <span class="comment">#    0.135 K/sec                 </span></span><br><span class="line">   &lt;not supported&gt;      cycles                                                     </span><br><span class="line">   &lt;not supported&gt;      instructions                                               </span><br><span class="line">   &lt;not supported&gt;      branches                                                   </span><br><span class="line">   &lt;not supported&gt;      branch-misses                                             </span><br><span class="line"></span><br><span class="line">       0.463188434 seconds time elapsed</span><br></pre></td></tr></table></figure>
+
+<p>-e task-clock指定事件，-e task-clock:u指定用户级别 -e task-clock:uk指定用户和内核</p>
+</li>
+<li><p><code>perf record + perf report</code> </p>
+<p>  比如运行一个alexnet实例：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br></pre></td><td class="code"><pre><span class="line">$ perf record -r 10 ComputeLibrary/build/examples/graph_alexnet --target=Neon --data=<span class="variable">$PATH_ASSETS</span> --image=<span class="variable">$PATH_ASSETS</span>/go_kart.ppm --labels=<span class="variable">$PATH_ASSETS</span>/labels.txt</span><br><span class="line"></span><br><span class="line">ComputeLibrary/build/examples/graph_alexnet</span><br><span class="line"></span><br><span class="line">Threads : 1</span><br><span class="line">Target : Neon</span><br><span class="line">Data <span class="built_in">type</span> : F32</span><br><span class="line">Data layout : NHWC</span><br><span class="line">Tuner enabled? : <span class="literal">false</span></span><br><span class="line">Cache enabled? : <span class="literal">false</span></span><br><span class="line">Tuner mode : Normal</span><br><span class="line">Tuner file :</span><br><span class="line">MLGO file :</span><br><span class="line">Fast math enabled? : <span class="literal">false</span></span><br><span class="line">Data path : /root/alexnet_data</span><br><span class="line">Image file : /root/alexnet_data/go_kart.ppm</span><br><span class="line">Labels file : /root/alexnet_data/labels.txt</span><br><span class="line"></span><br><span class="line">---------- Top 5 predictions ----------</span><br><span class="line"></span><br><span class="line">0.9736 - [id = 573], n03444034 go-kart</span><br><span class="line">0.0118 - [id = 518], n03127747 crash helmet</span><br><span class="line">0.0108 - [id = 751], n04037443 racer, race car, racing car</span><br><span class="line">0.0022 - [id = 817], n04285008 sports car, sport car</span><br><span class="line">0.0006 - [id = 670], n03791053 motor scooter, scooter</span><br><span class="line"></span><br><span class="line">Test passed</span><br><span class="line">[ perf record: Woken up 3 <span class="built_in">times</span> to write data ]</span><br><span class="line">[ perf record: Captured and wrote 0.711 MB perf.data (18409 samples) ]</span><br><span class="line"></span><br><span class="line">$ perf report</span><br><span class="line"><span class="comment"># ========</span></span><br><span class="line"><span class="comment"># os release : 4.15.0-156-generic</span></span><br><span class="line"><span class="comment"># perf version : 4.15.18</span></span><br><span class="line"><span class="comment"># arch : aarch64</span></span><br><span class="line"><span class="comment"># nrcpus online : 2</span></span><br><span class="line"><span class="comment"># nrcpus avail : 2</span></span><br><span class="line"><span class="comment"># total memory : 4036928 kB</span></span><br><span class="line"><span class="comment"># cmdline : /usr/lib/linux-tools-4.15.0-156/perf record ComputeLibrary/build/examples/graph_alexnet --target=Neon --data=/root/alexnet_data --image=/root/alexnet_data/go_kart.ppm --labels=/root/alexnet_data/labels.txt </span></span><br><span class="line"><span class="comment"># event : name = cpu-clock, , type = 1, size = 112, &#123; sample_period, sample_freq &#125; = 4000, sample_type = IP|TID|TIME|PERIOD, disabled = 1, inherit = 1, mmap = 1, comm = 1, freq = 1, enable_on_exec = 1, task = 1, sample_id_all = 1, exclude_guest = 1, mmap2 = 1, comm_exec = 1</span></span><br><span class="line"><span class="comment"># sibling cores   : 0-1</span></span><br><span class="line"><span class="comment"># sibling threads : 0</span></span><br><span class="line"><span class="comment"># sibling threads : 1</span></span><br><span class="line"><span class="comment"># CPU 0: Core ID 0, Socket ID 60</span></span><br><span class="line"><span class="comment"># CPU 1: Core ID 1, Socket ID 60</span></span><br><span class="line"><span class="comment"># node0 meminfo  : total = 4036928 kB, free = 3293896 kB</span></span><br><span class="line"><span class="comment"># node0 cpu list : 0-1</span></span><br><span class="line"><span class="comment"># pmu mappings: armv8_pmuv3_0 = 6, software = 1, breakpoint = 5, tracepoint = 2</span></span><br><span class="line"><span class="comment"># CPU cache info:</span></span><br><span class="line"><span class="comment">#  L1 Data                 64K [0]</span></span><br><span class="line"><span class="comment">#  L1 Instruction          64K [0]</span></span><br><span class="line"><span class="comment">#  L1 Data                 64K [1]</span></span><br><span class="line"><span class="comment">#  L1 Instruction          64K [1]</span></span><br><span class="line"><span class="comment">#  L2 Unified             512K [0]</span></span><br><span class="line"><span class="comment">#  L2 Unified             512K [1]</span></span><br><span class="line"><span class="comment">#  L3 Unified           32768K [0-1]</span></span><br><span class="line"><span class="comment"># missing features: TRACING_DATA CPUDESC CPUID BRANCH_STACK GROUP_DESC AUXTRACE STAT </span></span><br><span class="line"><span class="comment"># ========</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Total Lost Samples: 0</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Samples: 18K of event &#x27;cpu-clock&#x27;</span></span><br><span class="line"><span class="comment"># Event count (approx.): 4616500000</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Overhead  Command        Shared Object            Symbol                                                                                                                                            </span></span><br><span class="line"><span class="comment"># ........  .............  .......................  ..................................................................................................................................................</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">    15.01%  graph_alexnet  graph_alexnet            [.] arm_compute::utils::NPYLoader::fill_tensor&lt;arm_compute::ITensor&gt;</span><br><span class="line">    11.05%  graph_alexnet  libstdc++.so.6.0.25      [.] std::istream::<span class="built_in">read</span></span><br><span class="line">     8.65%  graph_alexnet  libarm_compute.so        [.] arm_compute::cpu::kernels::(anonymous namespace)::transpose_32bit_elements</span><br><span class="line">     7.66%  graph_alexnet  libarm_compute.so        [.] arm_compute::TensorAllocator::data</span><br><span class="line">     6.89%  graph_alexnet  libstdc++.so.6.0.25      [.] std::istream::sentry::sentry</span><br><span class="line">     6.29%  graph_alexnet  libarm_compute.so        [.] arm_compute::TensorInfo::element_size</span><br><span class="line">     4.66%  graph_alexnet  libstdc++.so.6.0.25      [.] std::basic_filebuf&lt;char, std::char_traits&lt;char&gt; &gt;::xsgetn</span><br><span class="line">     3.18%  graph_alexnet  libarm_compute.so        [.] arm_compute::ITensorAllocator::info</span><br><span class="line">     3.12%  graph_alexnet  libarm_compute.so        [.] arm_compute::TensorInfo::offset_element_in_bytes</span><br><span class="line">     2.79%  graph_alexnet  libstdc++.so.6.0.25      [.] std::basic_streambuf&lt;char, std::char_traits&lt;char&gt; &gt;::xsgetn</span><br><span class="line">     2.43%  graph_alexnet  libarm_compute.so        [.] arm_compute::cpu::kernels::CpuConvertFullyConnectedWeightsKernel::run_op</span><br><span class="line">     2.32%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083010</span><br><span class="line">     2.24%  graph_alexnet  [kernel.kallsyms]        [k] clear_page</span><br><span class="line">     1.80%  graph_alexnet  libarm_compute.so        [.] arm_gemm::Transform&lt;16u, 1u, <span class="literal">true</span>, (arm_gemm::VLType)0, <span class="built_in">float</span>, <span class="built_in">float</span>&gt;</span><br><span class="line">     1.32%  graph_alexnet  [kernel.kallsyms]        [k] __arch_copy_to_user</span><br><span class="line">     1.31%  graph_alexnet  libarm_compute.so        [.] arm_gemm::a64_hybrid_fp32_mla_6x16</span><br><span class="line">     1.26%  graph_alexnet  libarm_compute.so        [.] arm_compute::Tensor::info</span><br><span class="line">     1.16%  graph_alexnet  graph_alexnet            [.] std::istream::<span class="built_in">read</span>@plt</span><br><span class="line">     1.16%  graph_alexnet  libarm_compute.so        [.] arm_compute::Tensor::buffer</span><br><span class="line">     1.16%  graph_alexnet  libc-2.27.so             [.] 0x000000000008300c</span><br><span class="line">     1.11%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083008</span><br><span class="line">     1.09%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083904</span><br><span class="line">     0.94%  graph_alexnet  [kernel.kallsyms]        [k] el0_da</span><br><span class="line">     0.92%  graph_alexnet  libarm_compute.so        [.] arm_compute::Memory::region@plt</span><br><span class="line">     0.79%  graph_alexnet  libc-2.27.so             [.] 0x0000000000082fa0</span><br><span class="line">     0.77%  graph_alexnet  libarm_compute.so        [.] arm_compute::Memory::region</span><br><span class="line">     0.76%  graph_alexnet  [kernel.kallsyms]        [k] _raw_spin_unlock_irqrestore</span><br><span class="line">     0.69%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083004</span><br><span class="line">     0.67%  graph_alexnet  libarm_compute.so        [.] arm_compute::ITensorAllocator::info@plt</span><br><span class="line">     0.48%  graph_alexnet  [kernel.kallsyms]        [k] free_unref_page_list</span><br><span class="line">     0.43%  graph_alexnet  libarm_compute.so        [.] arm_compute::TensorAllocator::data@plt</span><br><span class="line">     0.37%  graph_alexnet  libc-2.27.so             [.] 0x0000000000082f90</span><br><span class="line">     0.36%  graph_alexnet  [kernel.kallsyms]        [k] get_page_from_freelist</span><br><span class="line">     0.30%  graph_alexnet  [kernel.kallsyms]        [k] handle_mm_fault</span><br><span class="line">     0.25%  graph_alexnet  libarm_compute.so        [.] winograd::WeightTransform&lt;3, 3, 6, 6, <span class="built_in">float</span>, <span class="built_in">float</span>, (winograd::WinogradRoots)0&gt;::execute</span><br><span class="line">     0.23%  graph_alexnet  [kernel.kallsyms]        [k] mem_cgroup_commit_charge</span><br><span class="line">     0.23%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083000</span><br><span class="line">     0.22%  graph_alexnet  libarm_compute.so        [.] arm_compute::cpu::kernels::(anonymous namespace)::run_permute&lt;unsigned int&gt;</span><br><span class="line">     0.22%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083900</span><br><span class="line">     0.21%  graph_alexnet  [kernel.kallsyms]        [k] try_charge</span><br><span class="line">     0.20%  graph_alexnet  [kernel.kallsyms]        [k] up_read</span><br><span class="line">     0.19%  graph_alexnet  [kernel.kallsyms]        [k] do_anonymous_page</span><br><span class="line">     0.15%  graph_alexnet  [kernel.kallsyms]        [k] unmap_page_range</span><br><span class="line">     0.14%  graph_alexnet  [kernel.kallsyms]        [k] release_pages</span><br><span class="line">     0.14%  graph_alexnet  libarm_compute.so        [.] arm_compute::NENormalizationLayerKernel::normalize_float&lt;<span class="built_in">float</span>, 4u, 0u, <span class="literal">false</span>&gt;</span><br><span class="line">     0.12%  graph_alexnet  [kernel.kallsyms]        [k] __handle_mm_fault</span><br><span class="line">     0.12%  graph_alexnet  [kernel.kallsyms]        [k] __lru_cache_add</span><br><span class="line">     0.11%  graph_alexnet  [kernel.kallsyms]        [k] __lock_text_start</span><br><span class="line">     0.10%  graph_alexnet  [kernel.kallsyms]        [k] mem_cgroup_try_charge</span><br><span class="line">     0.10%  graph_alexnet  libarm_compute.so        [.] arm_gemm::a64_sgemm_asimd_8x12</span><br><span class="line">     0.08%  graph_alexnet  [kernel.kallsyms]        [k] __dec_node_page_state</span><br><span class="line">     0.08%  graph_alexnet  [kernel.kallsyms]        [k] __dec_node_state</span><br><span class="line">     0.08%  graph_alexnet  [kernel.kallsyms]        [k] down_read_trylock</span><br><span class="line">     0.08%  graph_alexnet  [kernel.kallsyms]        [k] vmacache_find</span><br><span class="line">     0.07%  graph_alexnet  [kernel.kallsyms]        [k] find_get_entry</span><br><span class="line">     0.07%  graph_alexnet  libarm_compute.so        [.] arm_gemm::Transform&lt;12u, 1u, <span class="literal">true</span>, (arm_gemm::VLType)0, <span class="built_in">float</span>, <span class="built_in">float</span>&gt;</span><br><span class="line">     0.06%  graph_alexnet  [kernel.kallsyms]        [k] get_mem_cgroup_from_mm</span><br><span class="line">     0.06%  graph_alexnet  [kernel.kallsyms]        [k] _cond_resched</span><br><span class="line">     0.06%  graph_alexnet  [kernel.kallsyms]        [k] generic_file_buffered_read</span><br><span class="line">     0.06%  graph_alexnet  [kernel.kallsyms]        [k] page_remove_rmap</span><br><span class="line">     0.05%  graph_alexnet  [kernel.kallsyms]        [k] do_page_fault</span><br><span class="line">     0.05%  graph_alexnet  [kernel.kallsyms]        [k] set_bit</span><br><span class="line">     0.05%  graph_alexnet  graph_alexnet            [.] arm_compute::graph_utils::CaffePreproccessor::preprocess_typed&lt;<span class="built_in">float</span>&gt;</span><br><span class="line">     0.05%  graph_alexnet  [kernel.kallsyms]        [k] do_mem_abort</span><br><span class="line">     0.04%  graph_alexnet  [kernel.kallsyms]        [k] mark_page_accessed</span><br><span class="line">     0.04%  graph_alexnet  [kernel.kallsyms]        [k] uncharge_page</span><br><span class="line">     0.04%  graph_alexnet  [kernel.kallsyms]        [k] __alloc_pages_nodemask</span><br><span class="line">     0.04%  graph_alexnet  [kernel.kallsyms]        [k] __radix_tree_lookup</span><br><span class="line">     0.04%  graph_alexnet  [kernel.kallsyms]        [k] el0_svc_naked</span><br><span class="line">     0.04%  graph_alexnet  [kernel.kallsyms]        [k] free_unref_page_prepare.part.3</span><br><span class="line">     0.03%  graph_alexnet  [kernel.kallsyms]        [k] alloc_pages_vma</span><br><span class="line">     0.03%  graph_alexnet  [kernel.kallsyms]        [k] free_pages_and_swap_cache</span><br><span class="line">     0.03%  graph_alexnet  [kernel.kallsyms]        [k] page_counter_try_charge</span><br><span class="line">     0.03%  graph_alexnet  [kernel.kallsyms]        [k] workingset_activation</span><br><span class="line">     0.03%  graph_alexnet  [kernel.kallsyms]        [k] activate_page</span><br><span class="line">     0.03%  graph_alexnet  libarm_compute.so        [.] arm_compute::cpu::kernels::CpuWeightsReshapeKernel::run_op</span><br><span class="line">     0.02%  graph_alexnet  [kernel.kallsyms]        [k] free_pgd_range</span><br><span class="line">     0.02%  graph_alexnet  [kernel.kallsyms]        [k] rcu_all_qs</span><br><span class="line">     0.02%  graph_alexnet  libarm_compute.so        [.] arm_compute::SubTensor::info</span><br><span class="line">     0.02%  graph_alexnet  libc-2.27.so             [.] malloc</span><br><span class="line">     0.02%  graph_alexnet  libpthread-2.27.so       [.] __libc_read</span><br><span class="line">     0.02%  graph_alexnet  libstdc++.so.6.0.25      [.] std::istream::get</span><br><span class="line">     0.02%  graph_alexnet  libstdc++.so.6.0.25      [.] std::istream::sentry::sentry@plt</span><br><span class="line">     0.02%  graph_alexnet  [kernel.kallsyms]        [k] __fsnotify_parent</span><br><span class="line">     0.02%  graph_alexnet  libarm_compute.so        [.] winograd::InputTransform&lt;6, 6, <span class="built_in">float</span>, <span class="built_in">float</span>, (winograd::WinogradRoots)0&gt;::transform_tile</span><br><span class="line">     0.02%  graph_alexnet  libc-2.27.so             [.] cfree</span><br><span class="line">     0.02%  graph_alexnet  libpthread-2.27.so       [.] __pthread_disable_asynccancel</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] __fget_light</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] __softirqentry_text_start</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] do_translation_fault</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] find_vma</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] fsnotify</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] get_task_policy.part.8</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] new_sync_read</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] pagecache_get_page</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] refill_stock</span><br><span class="line">     0.01%  graph_alexnet  graph_alexnet            [.] arm_compute::utils::IImageLoader::fill_planar_tensor&lt;arm_compute::ITensor&gt;</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x00000000000092d8</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_compute::SubTensorInfo::element_size</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_compute::cpu::kernels::CpuConcatenateWidthKernel::run_op</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_gemm::GemmHybridIndirect&lt;arm_gemm::cls_a64_hybrid_fp32_mla_6x16, <span class="built_in">float</span>, <span class="built_in">float</span>, arm_gemm::Nothing, <span class="literal">false</span>&gt;::execute</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x00000000000830f4</span><br><span class="line">     0.01%  graph_alexnet  libpthread-2.27.so       [.] __pthread_enable_asynccancel</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] std::basic_filebuf&lt;char, std::char_traits&lt;char&gt; &gt;::underflow</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] std::codecvt&lt;char, char, __mbstate_t&gt;::do_always_noconv</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] __clean_dcache_area_pou</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] __mod_node_page_state</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] __vma_rb_erase</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] __zone_watermark_ok</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] common_file_perm</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] copy_page_to_iter</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] copyout</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] current_time</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] down_write_killable</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] el1_ia</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] filemap_map_pages</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] free_unref_page</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] get_rps_cpu</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] get_vma_policy.part.12</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] inet_gro_receive</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] lock_page_memcg</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] lru_cache_add_active_or_unevictable</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] may_expand_vm</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] page_add_file_rmap</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] perf_output_put_handle</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] policy_node</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] radix_tree_lookup_slot</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] refcount_inc_not_zero</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] security_mmap_file</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] tlb_flush_mmu_tlbonly</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] tlb_next_batch.isra.4</span><br><span class="line">     0.01%  graph_alexnet  [kernel.kallsyms]        [k] unmapped_area_topdown</span><br><span class="line">     0.01%  graph_alexnet  graph_alexnet            [.] arm_compute::utils::operator&lt;&lt;</span><br><span class="line">     <span class="string">0.01%  graph_alexnet  ld-2.27.so               [.] 0x0000000000008818</span></span><br><span class="line"><span class="string">     0</span>.01%  graph_alexnet  ld-2.27.so               [.] 0x00000000000088d8</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x00000000000089c8</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x0000000000008b7c</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x00000000000092e0</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x00000000000092e4</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x00000000000092f8</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x00000000000092fc</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x000000000000aad0</span><br><span class="line">     0.01%  graph_alexnet  ld-2.27.so               [.] 0x000000000000d164</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_compute::NEConvolutionLayer::prepare</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_compute::TensorInfo::<span class="built_in">clone</span></span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_compute::TensorInfo::operator=</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_compute::cpu::kernels::(anonymous namespace)::mul_F32_F32_F32</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_compute::cpu::kernels::CpuReshapeKernel::run_op</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_conv::pooling::a64_fp32_nhwc_max_generic_depthfirst_impl</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] arm_gemm::(anonymous namespace)::run_hybrid_kernel&lt;arm_gemm::Nothing, <span class="literal">false</span>&gt;::run&lt;arm_gemm::cls_a64_hybrid_fp32_mla_6x16, <span class="built_in">float</span>, <span class="built_in">float</span>, <span class="built_in">float</span>&gt;</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute.so        [.] winograd::OutputTransform&lt;3, 3, 6, 6, <span class="built_in">float</span>, <span class="built_in">float</span>, (winograd::WinogradRoots)0&gt;::transform_tile</span><br><span class="line">     0.01%  graph_alexnet  libarm_compute_graph.so  [.] arm_compute::graph::backends::detail::get_backing_tensor&lt;arm_compute::graph::backends::NETargetInfo&gt;</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] __stpncpy</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] __strxfrm_l</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] fclose</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] strlen</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x00000000000440c8</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x0000000000072b08</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x0000000000073fe8</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x00000000000755e0</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083028</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083084</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x0000000000083088</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x00000000000830d8</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x00000000000830dc</span><br><span class="line">     0.01%  graph_alexnet  libc-2.27.so             [.] 0x00000000000ad1a0</span><br><span class="line">     0.01%  graph_alexnet  libgcc_s.so.1            [.] __trunctfdf2</span><br><span class="line">     0.01%  graph_alexnet  libm-2.27.so             [.] powf</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] __cxxabiv1::__vmi_class_type_info::__do_dyncast</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] __floatsitf@plt</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] __trunctfdf2@plt</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] operator delete@plt</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_append</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] std::__detail::_List_node_base::_M_transfer</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] std::getline&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] std::use_facet&lt;std::ctype&lt;char&gt; &gt;</span><br><span class="line">     0.01%  graph_alexnet  libstdc++.so.6.0.25      [.] strcmp@plt</span><br></pre></td></tr></table></figure>
+
+<p>  可以看到主要overhead都在于访存相关操作上。</p>
+</li>
+<li><p><code>perf annotate</code>指令级分析，编译程序时加 -ggdb可以逐行看</p>
+</li>
+<li><p><code>perf top</code>现场分析</p>
+</li>
+<li><p><code>perf bench</code>基准测试</p>
+<ul>
+<li><code>sched</code>调度器基准测试测量：多个任务之间的pipe(2)和socketpair(2)操作。允许测量线程与进程上下文切换的性能。</li>
+<li><code>mem</code>:内存访问基准测试</li>
+<li><code>numa</code>: numa调度和MM基准测试</li>
+<li><code>futex</code>: futex压力基准测试：处理futex内核实现的细粒度方面。它对于内核黑客非常有用。它目前支持唤醒和重新排队/等待操作，并强调私有和共享futexes的哈希方案。</li>
+</ul>
+</li>
+</ul>
+<h3 id="gprof-and-gpeftools"><a href="#gprof-and-gpeftools" class="headerlink" title="gprof and gpeftools"></a>gprof and gpeftools</h3><p>gprof: GNU profiler，对应gem5.prof</p>
+<p>gpeftools: google的性能分析工具，对应gem5.perf，哪天学习一下</p>
+
+        </div>
+
+        
+            <div class="post-copyright-info">
+                <div class="article-copyright-info-container">
+    <ul>
+        <li>Post title：性能分析</li>
+        <li>Post author：Lucian</li>
+        <li>Create time：2021-09-30 23:41:14</li>
+        <li>
+            Post link：http://lucian.run/2021/09/30/profilers/
+        </li>
+        <li>
+            Copyright Notice：All articles in this blog are licensed under <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">BY-NC-SA</a> unless stating additionally.
+        </li>
+    </ul>
+</div>
+
+            </div>
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2021/10/03/gem5%20FS/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Running ARM Linux in GEM5 FS mode</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2002</span>&nbsp;-&nbsp;
+            
+            2021&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Lucian</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-profilers"><span class="nav-number">1.</span> <span class="nav-text">性能分析工具 (profilers)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%90%E8%A1%8C%E6%97%B6%E9%97%B4%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">逐行时间分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E6%9E%90"><span class="nav-number">1.2.</span> <span class="nav-text">内存分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90"><span class="nav-number">1.3.</span> <span class="nav-text">事件分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">1.4.</span> <span class="nav-text">可视化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Perf"><span class="nav-number">1.5.</span> <span class="nav-text">Perf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gprof-and-gpeftools"><span class="nav-number">1.6.</span> <span class="nav-text">gprof and gpeftools</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

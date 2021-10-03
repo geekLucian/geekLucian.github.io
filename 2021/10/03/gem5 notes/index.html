@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Lucian">
+    
+    <title>
+        
+            gem5 notes (updating) |
+        
+        Lucian&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"geeklucian.github.io","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar1.jpg","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"使用一些简单而不确定的规则，要比复杂而确定的规则更为实用。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Lucian&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                HOME
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                ARCHIVES
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">HOME</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">ARCHIVES</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">gem5 notes (updating)</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar1.jpg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Lucian</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-10-03 17:05:00
+    </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>参考 <a class="link"   target="_blank" rel="noopener" href="https://www.gem5.org/documentation/learning_gem5/introduction/" >gem5: Learning gem5<i class="fas fa-external-link-alt"></i></a> 和 <a class="link"   target="_blank" rel="noopener" href="https://www.gem5.org/assets/files/ASPLOS2017_gem5_tutorial.pdf" >Architectural Exploration with gem5<i class="fas fa-external-link-alt"></i></a></p>
+<hr>
+<p>模拟器在体系结构研究中的用途包括：降低评估硬件的成本、模拟手头没有的硬件、提升计算机性能数据的准确性、快速验证想法。现在对体系结构有了初步的了解，再重学一遍gem5，有了些更深入的理解。</p>
+<h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
+<p> gem5 is a modular discrete event driven computer system simulator platform.</p>
+</blockquote>
+<blockquote>
+<p>gem5 is designed for use in computer architecture research, but if you’re trying to research something new and novel it probably won’t be able to evaluate your idea out of the box. If it could, that probably means someone has already evaluated a similar idea and published about it.</p>
+</blockquote>
+<ul>
+<li>gem5 binary types: debug, opt, fast, prof and perf<ul>
+<li>opt是优化最好的(-O3)且有debug symbol，fast最快最小</li>
+<li>其余参看<a class="link"   target="_blank" rel="noopener" href="https://www.gem5.org/documentation/learning_gem5/part1/building/" >gem5: Building gem5<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+</li>
+</ul>
+<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><h3 id="A-simple-config-script"><a href="#A-simple-config-script" class="headerlink" title="A simple config script"></a>A simple config script</h3><ul>
+<li><p>注：为了在vscode中gem5的包有补全</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;PYTHONPATH=$PYTHONPATH:$GEM5_PATH/build/ARM/python/m5&#x27;</span> &gt;&gt; ~/.zshrc; <span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure></li>
+<li><p>gem5中多数组件(CPUs, caches, memory controllers, buses, etc.)都是<code>SimObjects </code>，由C++实现，接口暴露给python，用python来写配置脚本（设参数、说明连接方式）</p>
+</li>
+<li><p><code>simple.py</code> </p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># import the m5 (gem5) library created when gem5 is built</span></span><br><span class="line"><span class="comment"># 位于 $GEM5_PATH/build/ARM/python/m5</span></span><br><span class="line"><span class="keyword">import</span> m5</span><br><span class="line"><span class="comment"># import all of the SimObjects</span></span><br><span class="line"><span class="keyword">from</span> m5.objects <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># create the system we are going to simulate</span></span><br><span class="line"><span class="comment"># System对象是所有其它对象的parent，有许多成员</span></span><br><span class="line">system = System()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Set the clock fequency of the system (and all of its children)</span></span><br><span class="line">system.clk_domain = SrcClockDomain()</span><br><span class="line">system.clk_domain.clock = <span class="string">&#x27;1GHz&#x27;</span></span><br><span class="line">system.clk_domain.voltage_domain = VoltageDomain()	<span class="comment"># 不关心功耗就默认</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Set up the system</span></span><br><span class="line">system.mem_mode = <span class="string">&#x27;timing&#x27;</span>               <span class="comment"># Use timing accesses</span></span><br><span class="line">system.mem_ranges = [AddrRange(<span class="string">&#x27;512MB&#x27;</span>)] <span class="comment"># Create an address range</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a simple CPU</span></span><br><span class="line"><span class="comment"># TimingSimpleCPU每周期一条指令，除了访存交给memory system</span></span><br><span class="line">system.cpu = TimingSimpleCPU()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a memory bus, a system crossbar, in this case</span></span><br><span class="line">system.membus = SystemXBar()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Hook the CPU ports up to the membus</span></span><br><span class="line"><span class="comment"># BLL：对于membus slave := cpu_side_ports; master := mem_side_ports</span></span><br><span class="line"><span class="comment"># 对于每个内存对象能有两种port (request and response)，需对应着连</span></span><br><span class="line"><span class="comment"># 左右互换仍OK，但必须是request与response</span></span><br><span class="line"><span class="comment"># 语法糖：允许port = array[port]</span></span><br><span class="line">system.cpu.icache_port = system.membus.cpu_side_ports</span><br><span class="line">system.cpu.dcache_port = system.membus.cpu_side_ports</span><br><span class="line"></span><br><span class="line"><span class="comment"># create the interrupt controller for the CPU and connect to the membus</span></span><br><span class="line">system.cpu.createInterruptController()</span><br><span class="line"></span><br><span class="line"><span class="comment"># For x86 only, make sure the interrupts are connected to the memory</span></span><br><span class="line"><span class="comment"># Note: these are directly connected to the memory bus and are not cached</span></span><br><span class="line"><span class="keyword">if</span> m5.defines.buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] == <span class="string">&quot;x86&quot;</span>:</span><br><span class="line">    system.cpu.interrupts[<span class="number">0</span>].pio = system.membus.master</span><br><span class="line">    system.cpu.interrupts[<span class="number">0</span>].int_master = system.membus.slave</span><br><span class="line">    system.cpu.interrupts[<span class="number">0</span>].int_slave = system.membus.master</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a DDR3 memory controller and connect it to the membus</span></span><br><span class="line">system.mem_ctrl = MemCtrl()</span><br><span class="line">system.mem_ctrl.dram = DDR3_1600_8x8()</span><br><span class="line">system.mem_ctrl.dram.<span class="built_in">range</span> = system.mem_ranges[<span class="number">0</span>]</span><br><span class="line">system.mem_ctrl.port = system.membus.master</span><br><span class="line"></span><br><span class="line"><span class="comment"># Connect the system up to the membus</span></span><br><span class="line">system.system_port = system.membus.slave</span><br><span class="line"></span><br><span class="line"><span class="comment"># get ISA for the binary to run.</span></span><br><span class="line">isa = <span class="built_in">str</span>(m5.defines.buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>]).lower()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Default to running &#x27;hello&#x27;, use the compiled ISA to find the binary</span></span><br><span class="line"><span class="comment"># grab the specific path to the binary</span></span><br><span class="line">thispath = os.path.dirname(os.path.realpath(__file__))</span><br><span class="line">binary = os.path.join(thispath, <span class="string">&#x27;../../../&#x27;</span>,</span><br><span class="line">                      <span class="string">&#x27;tests/test-progs/hello/bin/&#x27;</span>, isa, <span class="string">&#x27;linux/hello&#x27;</span>)</span><br><span class="line"></span><br><span class="line">system.workload = SEWorkload.init_compatible(binary)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a process for a simple &quot;Hello World&quot; application</span></span><br><span class="line">process = Process()</span><br><span class="line"><span class="comment"># Set the command</span></span><br><span class="line"><span class="comment"># cmd is a list which begins with the executable (like argv)</span></span><br><span class="line">process.cmd = [binary]</span><br><span class="line"><span class="comment"># Set the cpu to use the process as its workload and create thread contexts</span></span><br><span class="line">system.cpu.workload = process</span><br><span class="line">system.cpu.createThreads()</span><br><span class="line"></span><br><span class="line"><span class="comment"># set up the root SimObject and start the simulation</span></span><br><span class="line"><span class="comment"># 调用构造函数，不用先实例化再赋值</span></span><br><span class="line">root = Root(full_system = <span class="literal">False</span>, system = system)	</span><br><span class="line"><span class="comment"># instantiate all of the objects we&#x27;ve created above</span></span><br><span class="line">m5.instantiate()</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Beginning simulation!&quot;</span>)</span><br><span class="line">exit_event = m5.simulate()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Exiting @ tick %i because %s&#x27;</span> % (m5.curTick(), exit_event.getCause()))</span><br></pre></td></tr></table></figure></li>
+<li><p>SE模式专注于CPU和memory，不用实例化所有设备</p>
+</li>
+<li><p>InO: <code>MinorCPU</code>OoO: <code>DerivO3CPU</code>(需要i$ d$分离)</p>
+</li>
+</ul>
+<h3 id="Adding-Cache"><a href="#Adding-Cache" class="headerlink" title="Adding Cache"></a>Adding Cache</h3><ul>
+<li>cache的simobject在<code>src/mem/cache/Cache.py</code>，python文件定义了可以设置的参数</li>
+<li>gem5有两种不同的cache模型系统 （由于历史原因，早晚合并）<ul>
+<li>Classic: 来自m5，简化、固定的MOESI缓存一致性协议</li>
+<li>Ruby：来自GEMS，对缓存一致性细致建模</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+
+        
+            <div class="post-copyright-info">
+                <div class="article-copyright-info-container">
+    <ul>
+        <li>Post title：gem5 notes (updating)</li>
+        <li>Post author：Lucian</li>
+        <li>Create time：2021-10-03 17:05:00</li>
+        <li>
+            Post link：http://lucian.run/2021/10/03/gem5 notes/
+        </li>
+        <li>
+            Copyright Notice：All articles in this blog are licensed under <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">BY-NC-SA</a> unless stating additionally.
+        </li>
+    </ul>
+</div>
+
+            </div>
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/10/03/gem5%20FS/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Running ARM Linux in GEM5 FS mode</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2002</span>&nbsp;-&nbsp;
+            
+            2021&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Lucian</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Intro"><span class="nav-number">1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Start"><span class="nav-number">2.</span> <span class="nav-text">Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-simple-config-script"><span class="nav-number">2.1.</span> <span class="nav-text">A simple config script</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adding-Cache"><span class="nav-number">2.2.</span> <span class="nav-text">Adding Cache</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

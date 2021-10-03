@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Lucian">
+    
+    <title>
+        
+            Running ARM Linux in GEM5 FS mode |
+        
+        Lucian&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"geeklucian.github.io","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar1.jpg","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"使用一些简单而不确定的规则，要比复杂而确定的规则更为实用。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Lucian&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                HOME
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                ARCHIVES
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">HOME</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">ARCHIVES</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Running ARM Linux in GEM5 FS mode</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar1.jpg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Lucian</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-10-03 16:55:30
+    </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>本篇记录了在Ubuntu 18.04 + python 3.6.9 + gem5 20.1.0.5 full system mode运行ARM Linux的步骤以及遇到的坑。</p>
+<p>为了使用<a class="link"   target="_blank" rel="noopener" href="https://github.com/ARM-software/ComputeLibrary" >ARM Compute Library<i class="fas fa-external-link-alt"></i></a>（开源）和<a class="link"   target="_blank" rel="noopener" href="https://www.arm.com/products/development-tools/server-and-hpc/allinea-studio/performance-libraries" >Arm Performance Libraries<i class="fas fa-external-link-alt"></i></a>（闭源），需要ARM Linux。</p>
+<p>本篇记录了在Ubuntu 18.04 + python 3.6.9 + gem5 20.1.0.5 full system mode运行ARM Linux的步骤以及遇到的坑。</p>
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><ol start="0">
+<li><p>Prerequisite</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install build-essential git m4 scons zlib1g zlib1g-dev libprotobuf-dev \</span><br><span class="line">protobuf-compiler libprotoc-dev libgoogle-perftools-dev \</span><br><span class="line">python3-dev python3-six python-is-python3 libboost-all-dev \</span><br><span class="line">pkg-config</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需要注意不同Ubuntu版本下的aarch64-gcc版本</span></span><br><span class="line">sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu</span><br></pre></td></tr></table></figure></li>
+<li><p>build gem5</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/gem5/gem5.git</span><br><span class="line"><span class="built_in">cd</span> gem5/</span><br><span class="line">scons build/ARM/gem5.opt -j9</span><br><span class="line"></span><br><span class="line"><span class="comment"># make bootloader</span></span><br><span class="line">make -C system/arm/bootloader/arm</span><br><span class="line">make -C system/arm/bootloader/arm64</span><br><span class="line"><span class="comment"># make device trees</span></span><br><span class="line">make -C system/arm/dt</span><br><span class="line"></span><br><span class="line"><span class="comment"># build m5ops library</span></span><br><span class="line"><span class="built_in">cd</span> util/m5</span><br><span class="line">scons build/aarch64/out/m5</span><br><span class="line"><span class="built_in">cd</span> util/term; make</span><br></pre></td></tr></table></figure></li>
+<li><p>下载pre-built ARM Linux kernel</p>
+<p><a class="link"   target="_blank" rel="noopener" href="http://dist.gem5.org/dist/v21-0/arm/aarch-system-201901106.tar.bz2" >Latest Linux Kernel Image / Bootloader<i class="fas fa-external-link-alt"></i></a>（最新版不知为何服务器上跑不了，这里换成了201901106版）</p>
+<p><a class="link"   target="_blank" rel="noopener" href="http://dist.gem5.org/dist/current/arm/disks/ubuntu-18.04-arm64-docker.img.bz2" >Latest Linux Disk Images<i class="fas fa-external-link-alt"></i></a></p>
+</li>
+<li><p>解压</p>
+<p><code>bzip2 -d aarch-system-20210904.tar.bz2</code> <code>tar xvf aarch-system-20210904.tar</code></p>
+<p><code>bzip2 -d ubuntu-18.04-arm64-docker.img.bz2</code></p>
+</li>
+<li><p>设置环境变量M5_PATH为<code>aarch-system-20210904</code>解压路径</p>
+<p><code>echo &quot;export M5_PATH=\&quot;~\\aarch-system-20210904\&quot;&quot; &gt;&gt; ~/.bashrc; source ~/.bashrc</code></p>
+</li>
+<li><p>扩容和添加内容（如Compiler, Library, Benchmark）到磁盘映像</p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://developer.arm.com/-/media/Files/downloads/hpc/arm-allinea-studio/21-0/ACfL/arm-compiler-for-linux_21.0_Ubuntu-18.04_aarch64.tar?revision=31400f62-c9e6-4d20-a2b7-4ed597a53c5e" >arm-compiler-for-linux_21.0_Ubuntu-18.04_aarch64<i class="fas fa-external-link-alt"></i></a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/mnt</span><br><span class="line"><span class="comment"># 需要sudo，可以在自己虚拟机上整好再传到服务器上</span></span><br><span class="line"><span class="variable">$GEM5_PATH</span>/util/gem5img.py mount XXX.img ~/mnt</span><br><span class="line">cp XXX mnt/root/XXX</span><br><span class="line"><span class="variable">$GEM5_PATH</span>/util/gem5img.py umount mnt</span><br></pre></td></tr></table></figure>
+
+<p>disk image 2G空间不够，用dd和gparted扩容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 扩容</span></span><br><span class="line">$ dd <span class="keyword">if</span>=/dev/zero bs=1M count=10240 &gt;&gt; ./ubuntu-18.04-arm64-docker.img</span><br><span class="line"><span class="comment"># 挂载</span></span><br><span class="line">$ sudo udisksctl loop-setup -f ./ubuntu-18.04-arm64-docker.img</span><br><span class="line">Mapped file linux-x86.img as /dev/loop0.</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用gparted把空闲空间加到image的sda1上</span></span><br><span class="line">$ sudo gparted /dev/loop0</span><br><span class="line"><span class="comment"># 卸载</span></span><br><span class="line">$ sudo udisksctl loop-delete -b /dev/loop0</span><br></pre></td></tr></table></figure></li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ./build/ARM/gem5.opt ./configs/example/fs.py \</span><br><span class="line">&gt;       --kernel <span class="variable">$M5_PATH</span>/binaries/vmlinux.arm64 \</span><br><span class="line">&gt;       --disk-image <span class="variable">$M5_PATH</span>/disks/ubuntu-18.04-arm64-docker.img \</span><br><span class="line">&gt;       --bootloader <span class="variable">$M5_PATH</span>/binaries/boot.arm64 \</span><br><span class="line">&gt;       --param <span class="string">&quot;system.highest_el_is_64 = True&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>或者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./build/ARM/gem5.opt ./configs/example/arm/starter_fs.py \</span><br><span class="line">	--kernel /home/zhanglucheng/aarch-system-201901106/binaries/vmlinux.arm64 \</span><br><span class="line">	--disk-image /home/zhanglucheng/ubuntu-18.04-arm64-docker.img</span><br></pre></td></tr></table></figure>
+
+<p>从输出信息中看终端端口号</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">system.terminal: Listening <span class="keyword">for</span> connections on port 3456</span><br></pre></td></tr></table></figure>
+
+<p>则使用m5term连接3456即可使用终端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./util/term/m5term 3456</span><br></pre></td></tr></table></figure>
+
+<p>一般在gem5里启动aarch64 linux要5分钟左右</p>
+</li>
+<li><p>设置checkpoint</p>
+<blockquote>
+<p>Checkpoints are essentially snapshops of a simulation. You would want to use a checkpoint when your simulation takes an extremely long time (which is almost always the case) so you can resume from that checkpoint at a later time with the DerivO3CPU.</p>
+</blockquote>
+<ul>
+<li>Normally create checkpoint in atomic memory mode</li>
+<li>Restore from checkpoint and change the system to be more detailed</li>
+</ul>
+<ol>
+<li><p>生成Checkpoint</p>
+<ul>
+<li><p>方法1（推荐）：用atmoic CPU启动后在虚拟机终端输入<code>m5 checkpoint</code>，即会生成<code>m5out/cpt.TICKNUMBER</code></p>
+<blockquote>
+<p>gem5 also provides the m5 command-line tool which can be called from the<br>console in a full-system simulation. e.g.</p>
+<pre><code>m5 checkpoint
+</code></pre>
+<p>​    m5 dump_stats  </p>
+</blockquote>
+</li>
+<li><p>方法2：在C程序中使用m5ops</p>
+<p>  （需要提前<code>cd $GEM5_PATH/util/m5; scons build/aarch64/out/m5</code>）</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;gem5/m5ops.h&quot;</span> </span></span><br><span class="line"><span class="comment">// void m5_checkpoint(uint64_t ns_delay, uint64_t ns_period);</span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">    m5_checkpoint(XXX, <span class="number">0</span>)</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
+<li><p>方法3：指令后加<code>--take-checkpoints=&lt;M,N&gt;</code>  take checkpoints at tick M and every N ticks thereafter       </p>
+</li>
+</ul>
+</li>
+<li><p>从Checkpoint恢复，换用detailed CPU</p>
+<p> 主要是<code>--checkpoint-dir=m5out</code>指定checkpoint的目录， <code>-r 1</code>指定第几个checkpoint，如果只有一个可以省略</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">./build/ARM/gem5.opt ./configs/example/fs.py \</span><br><span class="line">    --kernel <span class="variable">$M5_PATH</span>/binaries/vmlinux.arm64 \</span><br><span class="line">    --disk-image <span class="variable">$M5_PATH</span>/disks/ubuntu-18.04-arm64-docker.img \</span><br><span class="line">    --bootloader <span class="variable">$M5_PATH</span>/binaries/boot.arm64 \</span><br><span class="line">    --param <span class="string">&quot;system.highest_el_is_64 = True&quot;</span> \</span><br><span class="line">    --checkpoint-dir=m5out -r 1 \</span><br><span class="line">    --restore-with-cpu=O3_ARM_v7a_3 --caches \</span><br><span class="line">    --l1d_size=32kB --l1i_size=32kB \</span><br><span class="line">    --l2cache --l2_size=2048kB</span><br></pre></td></tr></table></figure>
+
+<p> 免去boot的过程直接进</p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="试错过程"><a href="#试错过程" class="headerlink" title="试错过程"></a>试错过程</h2><ol>
+<li><p>fs + 64 或 starter_fs + 32/64 都不行；</p>
+<p>用fs + 32位可跑，但最后会有kernel panic</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./build/ARM/gem5.opt ./configs/example/fs.py \</span><br><span class="line">--kernel /home/zhanglucheng/aarch-system-20210904/binaries/vmlinux.arm \</span><br><span class="line">--disk-image /home/zhanglucheng/ubuntu-18.04-arm64-docker.img</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[    0.444805] Kernel panic - not syncing: No working init found.  Try passing init= option to kernel. See Linux Documentation/admin-guide/init.rst <span class="keyword">for</span> guidance.</span><br><span class="line">[    0.444879] ---[ end Kernel panic - not syncing: No working init found.  Try passing init= option to kernel. See Linux Documentation/admin-guide/init.rst <span class="keyword">for</span> guidance. ]---</span><br></pre></td></tr></table></figure></li>
+<li><p><em>Mail Archive</em>类似状况解决办法：</p>
+<ul>
+<li><p>不能用GUI解压，要<code>bzip2 -d aarch-system-201901106.tar.bz2</code> <code>tar xvf aarch-system-201901106.tar</code></p>
+</li>
+<li><p><code>--root /dev/vda1</code> 加上似乎有别的问题</p>
+</li>
+<li><blockquote>
+<p>Unrelated, could you use vmlinux.vexpress_gem5_v1_64 instead?</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>there are some incompatibilities between the prebuilt kernel and<br>your binutils</p>
+</blockquote>
+<p>换到自己的虚拟机ubuntu20.04 + gem5 21.0.1.0 也是</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">warn: Kernel panic <span class="keyword">in</span> simulated kernel</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[    0.444806] Kernel panic - not syncing: No working init found.  Try passing init= option to kernel. See Linux Documentation/admin-guide/init.rst <span class="keyword">for</span> guidance.</span><br><span class="line">[    0.444880] ---[ end Kernel panic - not syncing: No working init found.  Try passing init= option to kernel. See Linux Documentation/admin-guide/init.rst <span class="keyword">for</span> guidance. ]---</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>尝试2019版另一个64位kernel，记得要修改M5_PATH</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./build/ARM/gem5.opt ./configs/example/fs.py --kernel /home/zhanglucheng/aarch-system-201901106/binaries/vmlinux.arm64 --disk-image /home/zhanglucheng/ubuntu-18.04-arm64-docker.img --bootloader /home/zhanglucheng/aarch-system-201901106/binaries/boot.arm64 --param <span class="string">&#x27;system.highest_el_is_64 = True&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><p>GUI解压工具Archive Manager就是辣鸡，应该用<code>bzip2 -d aarch-system-201901106.tar.bz2</code> <code>tar xvf aarch-system-201901106.tar</code></p>
+<p>如果用Archive Manager解压，运行时会卡在最开始</p>
+</li>
+<li><p>用不同版本的pre-built kernel 需要修改M5_PATH <code>export $M5_PATH=\path\to\aarch-system-XXXX</code></p>
+</li>
+<li><p>fs.py 需要参数 <code>kernel</code> <code>disk-image</code> <code>bootloader</code> 以及设置最高exception level = 64。不加bootloader会导致上述kernel panic</p>
+<p>starter_fs.py 不用加<code>bootloader</code>和<code>param</code>，但需要提前make bootloader <code>make -C $GEM5_PATH/system/arm/bootloader/arm64</code></p>
+</li>
+</ol>
+
+        </div>
+
+        
+            <div class="post-copyright-info">
+                <div class="article-copyright-info-container">
+    <ul>
+        <li>Post title：Running ARM Linux in GEM5 FS mode</li>
+        <li>Post author：Lucian</li>
+        <li>Create time：2021-10-03 16:55:30</li>
+        <li>
+            Post link：http://lucian.run/2021/10/03/gem5 FS/
+        </li>
+        <li>
+            Copyright Notice：All articles in this blog are licensed under <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">BY-NC-SA</a> unless stating additionally.
+        </li>
+    </ul>
+</div>
+
+            </div>
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2021/10/03/gem5%20notes/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">gem5 notes (updating)</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/09/30/profilers/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">性能分析</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2002</span>&nbsp;-&nbsp;
+            
+            2021&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Lucian</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.</span> <span class="nav-text">步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%95%E9%94%99%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">试错过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
