@@ -161,9 +161,8 @@
         
 
         <div class="article-content markdown-body">
-            <p>本篇记录了在Ubuntu 18.04 + python 3.6.9 + gem5 20.1.0.5 full system mode运行ARM Linux的步骤以及遇到的坑。</p>
-<p>为了使用<a class="link"   target="_blank" rel="noopener" href="https://github.com/ARM-software/ComputeLibrary" >ARM Compute Library<i class="fas fa-external-link-alt"></i></a>（开源）和<a class="link"   target="_blank" rel="noopener" href="https://www.arm.com/products/development-tools/server-and-hpc/allinea-studio/performance-libraries" >Arm Performance Libraries<i class="fas fa-external-link-alt"></i></a>（闭源），需要ARM Linux。</p>
-<p>本篇记录了在Ubuntu 18.04 + python 3.6.9 + gem5 20.1.0.5 full system mode运行ARM Linux的步骤以及遇到的坑。</p>
+            <p>为了使用<a class="link"   target="_blank" rel="noopener" href="https://github.com/ARM-software/ComputeLibrary" >ARM Compute Library<i class="fas fa-external-link-alt"></i></a>（开源）和<a class="link"   target="_blank" rel="noopener" href="https://www.arm.com/products/development-tools/server-and-hpc/allinea-studio/performance-libraries" >Arm Performance Libraries<i class="fas fa-external-link-alt"></i></a>（闭源），需要ARM Linux。</p>
+<p>本篇记录了在Ubuntu 18.04 + Python 3.6.9 + gem5 20.1.0.5 full system mode运行ARM Linux的步骤以及遇到的坑。</p>
 <h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><ol start="0">
 <li><p>Prerequisite</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install build-essential git m4 scons zlib1g zlib1g-dev libprotobuf-dev \</span><br><span class="line">protobuf-compiler libprotoc-dev libgoogle-perftools-dev \</span><br><span class="line">python3-dev python3-six python-is-python3 libboost-all-dev \</span><br><span class="line">pkg-config</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需要注意不同Ubuntu版本下的aarch64-gcc版本</span></span><br><span class="line">sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu</span><br></pre></td></tr></table></figure></li>

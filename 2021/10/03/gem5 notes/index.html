@@ -178,8 +178,6 @@
 </li>
 </ul>
 <h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><h3 id="A-simple-config-script"><a href="#A-simple-config-script" class="headerlink" title="A simple config script"></a>A simple config script</h3><ul>
-<li><p>注：为了在vscode中gem5的包有补全</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;PYTHONPATH=$PYTHONPATH:$GEM5_PATH/build/ARM/python/m5&#x27;</span> &gt;&gt; ~/.zshrc; <span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure></li>
 <li><p>gem5中多数组件(CPUs, caches, memory controllers, buses, etc.)都是<code>SimObjects </code>，由C++实现，接口暴露给python，用python来写配置脚本（设参数、说明连接方式）</p>
 </li>
 <li><p><code>simple.py</code> </p>
